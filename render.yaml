@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: workout-planner
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: API_KEY
+        generateValue: true   # Render creates a random key; copy it from the dashboard
+      - key: SEED_SAMPLE_DATA
+        value: "false"   # set "true" to show a demo week
