@@ -12,8 +12,8 @@ iPhone  →  FastAPI /workouts  →  Supabase (Postgres)
 - [x] **CP1: FastAPI app.** `/health` and `/workouts` (escaped HTML, API key). Your local test passed (6 tests).
 - [x] **CP2: Claude → FastAPI connector.** MCP tools at `/mcp`: `save_workout_plan`, `get_workouts`, `update_workout`, `delete_workout` (8 tests pass)
   - Data is stored **in memory only** (the `_workouts` dict in `app/store.py`). It's lost when the server restarts, redeploys or Render puts it to sleep.
-- [ ] **Test (you):** deploy to Render, connect Claude, save a week, view it on iPhone (same sitting) ← *you are here*
-- [ ] **CP3: Supabase, permanent storage** ← *next*
+- [x] **Test:** deployed to Render (https://workout-planner-dj04.onrender.com), Claude connector added, workout saved via Claude and shown on `/workouts` (2026-10-03)
+- [ ] **CP3: Supabase, permanent storage** ← *you are here*
   - [ ] You: create a free Supabase project; copy the Project URL and secret key
   - [ ] Me: SQL to create the `workouts` table
   - [ ] Me: `store.py` reads and writes Supabase (in-memory kept for tests)
