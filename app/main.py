@@ -5,10 +5,11 @@ Endpoints
   GET  /workouts                       -> HTML for the current week
   GET  /workouts?date=YYYY-MM-DD       -> HTML for that one day
   GET  /workouts?week=YYYY-MM-DD       -> HTML for the week containing that date
-       add &fragment=true to get just the workout cards (used by the app later)
+       add &fragment=true to get just the workout cards
+  GET  /api/workouts?week=|date=       -> same filters, as JSON (used by the Expo app)
   POST /mcp                            -> MCP connector for Claude (see mcp_server.py)
 
-Auth: if the API_KEY env var is set, /workouts and /mcp need it either as an
+Auth: if the API_KEY env var is set, /workouts, /api/workouts and /mcp need it either as an
 `X-API-Key` header or a `?key=` query parameter.
 """
 import os
@@ -69,6 +70,23 @@ def get_workouts(
     workouts = store.list_workouts(start, end)
     html = render_fragment(workouts) if fragment else render_page(workouts, start, end)
     return HTMLResponse(html)
+
+
+@app.get("/api/workouts", dependencies=[Depends(require_key)])
+def get_workouts_json(
+    date_: date | None = Query(default=None, alias="date"),
+    week: date | None = None,
+) -> dict:
+    """Same filters as /workouts, as JSON (used by the Expo app)."""
+    if date_:
+        start = end = date_
+    else:
+        start, end = store.week_bounds(week or date.today())
+    return {
+        "start": start.isoformat(),
+        "end": end.isoformat(),
+        "workouts": [w.model_dump(mode="json") for w in store.list_workouts(start, end)],
+    }
 
 
 # Mounted last so the routes above win; the MCP app answers at /mcp.

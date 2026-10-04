@@ -104,3 +104,18 @@ def test_mcp_requires_key(mcp_client, monkeypatch):
     assert _call(mcp_client, "get_workouts", {"start_date": "2026-10-12"}).status_code == 401
     ok = _call(mcp_client, "get_workouts", {"start_date": "2026-10-12"}, key="s3cret")
     assert ok.status_code == 200
+
+
+def test_json_week():
+    r = client.get("/api/workouts?week=2026-10-07")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["start"] == "2026-10-05" and body["end"] == "2026-10-11"
+    assert [w["day"] for w in body["workouts"]] == ["Monday", "Tuesday", "Wednesday", "Friday", "Saturday"]
+    assert body["workouts"][0]["exercises"][0] == {"name": "Bench Press", "sets": 4, "reps": "8"}
+
+
+def test_json_needs_key(monkeypatch):
+    monkeypatch.setenv("API_KEY", "s3cret")
+    assert client.get("/api/workouts").status_code == 401
+    assert client.get("/api/workouts", headers={"X-API-Key": "s3cret"}).status_code == 200
